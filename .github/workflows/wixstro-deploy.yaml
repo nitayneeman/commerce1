@@ -40,31 +40,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: npm install
 
       - name: Auth CLI
         run: |
-          yarn wix login --api-key $WIX_CLI_API_KEY
+          npx wix login --api-key $WIX_CLI_API_KEY
         env:
           WIX_CLI_API_KEY: ${{ secrets.wix-api-key }}
 
       - name: CLI pull env
         run: |
-          yarn wix edge env --env ${{ inputs.env-name }} pull
+          npx wix edge env --env ${{ inputs.env-name }} pull
 
       - name: Build
         run: |
-          yarn build
+          npm run build
 
       - name: Deploy
         id: deploy-preview
         run: |
           delimiter="$(openssl rand -hex 8)"
           echo "output<<${delimiter}" >> "${GITHUB_OUTPUT}"
-          yarn wix edge deploy --env $ENV_NAME --output-summary ./wix/deploy-summary.json >> "${GITHUB_OUTPUT}"
+          npx wix edge deploy --env $ENV_NAME --output-summary ./wix/deploy-summary.json >> "${GITHUB_OUTPUT}"
           echo "${delimiter}" >> "${GITHUB_OUTPUT}"
           echo "deployment_domain=$(jq -r .siteDeployment.domain ./wix/deploy-summary.json)" >> "${GITHUB_OUTPUT}"
         env:
